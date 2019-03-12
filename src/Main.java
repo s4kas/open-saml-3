@@ -1,6 +1,8 @@
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Base64;
 
+import org.joda.time.DateTime;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -30,11 +32,11 @@ public class Main {
 
 		KeyInfo keyInfo = new KeyInfoBuilder().buildObject();
 		X509Certificate x509Certificate = new X509CertificateBuilder().buildObject();
-		x509Certificate.setValue("Ver que certificado colocar aqui");
+		x509Certificate.setValue(Base64.getEncoder().encodeToString(pubKey.getEncoded()));
 		X509Data x509Data = new X509DataBuilder().buildObject();
 		x509Data.getX509Certificates().add(x509Certificate);
 		keyInfo.getX509Datas().add(x509Data);
-		
+
 		Signature signature = OpenSAMLUtils.buildSAMLObject(Signature.class);
 		signature.setSigningCredential(signingCredential);
 		signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
@@ -42,6 +44,8 @@ public class Main {
 		signature.setKeyInfo(keyInfo);
 
 		AuthnRequest request = new AuthnRequestBuilder().buildObject();
+		request.setID("theId");
+		request.setIssueInstant(new DateTime());
 		request.setSignature(signature);
 		try {
 			XMLObjectProviderRegistrySupport.getMarshallerFactory().getMarshaller(request).marshall(request);
