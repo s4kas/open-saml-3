@@ -1,13 +1,16 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 
 public class SecurityUtils {
 
@@ -19,12 +22,10 @@ public class SecurityUtils {
 		return kf.generatePrivate(spec);
 	}
 
-	public static PublicKey loadPublicKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-		byte[] keyBytes = Files.readAllBytes(Paths.get("public_key.der"));
-
-		X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-		KeyFactory kf = KeyFactory.getInstance("RSA");
-		return kf.generatePublic(spec);
+	public static X509Certificate loadCertificate() throws CertificateException, FileNotFoundException {
+		CertificateFactory fact = CertificateFactory.getInstance("X.509");
+		FileInputStream is = new FileInputStream ("certificate.pem");
+		return (X509Certificate) fact.generateCertificate(is);
 	}
 
 }
